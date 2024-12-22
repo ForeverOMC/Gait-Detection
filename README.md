@@ -8,16 +8,16 @@
 conda env create -f env.yaml
 ```
 
-2. Install the project:
+2. Download ViTPose++ model checkpoint from huggingface
 
 ```bash
-cd easy_ViTPose
-pip install -e .
+mkdir easy_ViTPose/checkpoints
+wget https://huggingface.co/JunkyByte/easy_ViTPose/resolve/main/torch/ap10k/vitpose-h-ap10k.pth -P easy_ViTPose/checkpoints
 ```
 
 ## Usage
 
 ```bash
-conda activate cs
+conda activate gd
 python main.py --task_name YOUR_TASK_NAME --video_path YOUR_VIDEO_PATH
 ```
