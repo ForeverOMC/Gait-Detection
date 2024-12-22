@@ -1,4 +1,25 @@
+---
+typora-root-url: images
+---
+
 # Gait Detection
+
+## Introduction
+
+<img src="/../README.assets/video_animation-1734873642526.gif" alt="video_animation" style="zoom:50%;" />
+
+<img src="/../README.assets/contact_sequence copy.png" alt="contact_sequence copy" style="zoom: 67%;" />
+
+<img src="/../README.assets/video_animation copy-1734873766390.gif" alt="video_animation copy" style="zoom:50%;" />
+
+<img src="/../README.assets/contact_sequence copy 2.png" alt="contact_sequence copy 2" style="zoom: 67%;" />
+
+<img src="/../README.assets/video_animation copy 2.gif" alt="video_animation copy 2" style="zoom:50%;" />
+
+<img src="/../README.assets/contact_sequence.png" alt="contact_sequence" style="zoom: 67%;" />
+
+
+
 
 ## Installation
 
