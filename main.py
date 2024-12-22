@@ -13,7 +13,7 @@ def parse_args():
     parser.add_argument('--task_name', type=str, required=True, help='Task name')
     parser.add_argument('--video_path', type=str, required=True, help='Video path')
     parser.add_argument('--output_dir', type=str, default='outputs/', help='Output directory')
-    parser.add_argument('--frame_rate', type=int, default=30, help='Frame rate')
+    parser.add_argument('--frame_rate', type=int, default=None, help='Frame rate')
     args = parser.parse_args()
 
     args.output_dir = os.path.join(args.output_dir, args.task_name)
@@ -32,11 +32,18 @@ def main():
                 filemode='a')
 
     logger.info(f"Task name: {args.task_name}, Video path: {args.video_path}")
+    if not os.path.exists(args.video_path):
+        logger.error(f"Video path {args.video_path} does not exist")
+        sys.exit(1)
 
     keypoints, privileged_keypoints, fps, frame_shape = detect_keypoints(args.video_path, args.output_dir)
-    contact_arr = detect_gait(privileged_keypoints, fps, args.output_dir)
-    plot_contact_sequence(contact_arr, args.output_dir) 
-    plot_video_with_animation(contact_arr, privileged_keypoints, args.video_path, frame_rate=args.frame_rate)
+    if args.frame_rate is None:
+        args.frame_rate = fps
+    contact_arr, filtered_keypoints = detect_gait(privileged_keypoints, fps, args.output_dir)
+    plot_contact_sequence(contact_arr, args.output_dir)
+    plot_video_with_animation(contact_arr, privileged_keypoints, filtered_keypoints, args.video_path, args.output_dir, frame_rate=args.frame_rate)
+
+    sys.exit(0)
 
 if __name__ == '__main__':
     main()

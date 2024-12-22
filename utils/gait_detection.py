@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy
 import cv2
+from utils.logger import logger
 
 def lowpass_filter(arr, length=5):
     b = np.ones(length) / length
@@ -55,10 +56,11 @@ def cal_period_length(max_extremas, min_extremas):
 
     period_lengths.sort()
     min_length, max_length = period_lengths[0], period_lengths[-1]
-    period_lengths = [length for length in period_lengths 
-                      if length > (max_length - min_length) / 2 + min_length]
-    
+    # method 1
     period_length = sum(period_lengths) / len(period_lengths)
+    # method 2
+    # period_lengths = [length for length in period_lengths 
+    #                   if length > (max_length - min_length) / 2 + min_length]
 
     return period_length
 
@@ -115,35 +117,54 @@ def post_process(privileged_keypoints, threshold=0.1):
 
 def detect_gait(privileged_keypoints, fps, output_dir):
     contact_arr = np.zeros((len(privileged_keypoints), 4))
+    filtered_keypoints = np.zeros((len(privileged_keypoints), 4))
     length = 5
     foot_idx = 0
     again = False
     while foot_idx < 4:
+        logger.info(f"Detecting gait for foot {foot_idx + 1}")
+        logger.info(f"length: {length}")
+
         privileged_keypoint = privileged_keypoints[:, foot_idx, 0]
 
-        privileged_keypoint = pre_process(privileged_keypoint, length)
+        filtered_keypoint = pre_process(privileged_keypoint, length)
+        logger.info(f"filtered_keypoint: \n{filtered_keypoint}")
 
-        max_extremas, min_extremas = find_extrema(privileged_keypoint)
+        max_extremas, min_extremas = find_extrema(filtered_keypoint)
+        logger.info(f"max_extremas: \n{max_extremas}")
+        logger.info(f"min_extremas: \n{min_extremas}")
+
         period_length = cal_period_length(max_extremas, min_extremas)
-        max_extremas, min_extremas = filter_extrema(max_extremas, min_extremas, period_length)
+        logger.info(f"period_length: {period_length}")
 
-        n, m = len(min_extremas), len(privileged_keypoint) / fps
+        max_extremas, min_extremas = filter_extrema(max_extremas, min_extremas, period_length)
+        logger.info(f"filtered_max_extremas: \n{max_extremas}")
+        logger.info(f"filtered_min_extremas: \n{min_extremas}")
+
+        n, m = len(min_extremas), len(filtered_keypoint) / fps
         f = m / n
         length_ = 3 + int((f - 1/2) / (1/4))
         if length_ != length and not again:
             length = length_
             again = True
+            logger.info(f"Adjusting length to {length_}")
             continue
         again = False
 
-        contact_idx = contact_detect(privileged_keypoint, min_extremas, period_length)
+        contact_idx = contact_detect(filtered_keypoint, min_extremas, period_length)
+        filtered_keypoints[:, foot_idx] = filtered_keypoint
 
         contact_arr[:, foot_idx] = contact_idx
         foot_idx += 1
 
     np.save(f'{output_dir}/contact_arr.npy', contact_arr)
-    plot_contact_sequence(contact_arr, output_dir)
-    return contact_arr
+    logger.info(f"Contact sequence saved to {output_dir}/contact_arr.npy")
+    logger.info("Gait detection completed")
+    logger.info(f"Contact sequence: \n{contact_arr}")
+
+    # plot_contact_sequence(contact_arr, output_dir)
+
+    return contact_arr, filtered_keypoints
 
 
 def plot_contact_sequence(contact_arr, output_dir):
@@ -164,12 +185,9 @@ def plot_contact_sequence(contact_arr, output_dir):
     axes[-1].set_xlabel('Frames')
 
     plt.tight_layout()
-    plt.savefig(f'{output_dir}/contact_sequence_.png', dpi=300)
+    plt.savefig(f'{output_dir}/contact_sequence.png', dpi=300)
+    logger.info(f"Contact sequence plot saved to {output_dir}/contact_sequence.png")
 
 
 if __name__ == '__main__':
-    pass
-    # task = 'horse2'
-    # contact_arr = detect_gait(task)
-    # print(contact_arr)
-    # plot_contact_sequence(contact_arr)
+    ...

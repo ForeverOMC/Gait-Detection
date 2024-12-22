@@ -137,9 +137,8 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-outputs/
-
 .vscode/
 
 test.ipynb
 keypoint.ipynb
+temp/

@@ -34,6 +34,7 @@ def plot_keypoints(privileged_keypoints, output_dir, h):
             ax.scatter(i, y, s=10, c=color)
 
     plt.savefig(f'{output_dir}/kp.png', bbox_inches='tight')
+    logger.info(f"Keypoint plot saved to {output_dir}/kp.png")
 
 def detect_keypoints(video_path, output_dir):
     args = default_args()
@@ -72,6 +73,7 @@ def detect_keypoints(video_path, output_dir):
     np.save(f'{output_dir}/keypoints.npy', keypoints)
     np.save(f'{output_dir}/privileged_keypoints.npy', privileged_keypoints)
     np.save(f'{output_dir}/frame_shape.npy', frame_shape)
+    logger.info(f"Keypoints saved to {output_dir}")
 
     return np.array(keypoints), np.array(privileged_keypoints), fps, frame_shape
 
